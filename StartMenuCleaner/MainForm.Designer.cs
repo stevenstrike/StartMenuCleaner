@@ -62,7 +62,11 @@
             this.customSearchTextBox.Name = "customSearchTextBox";
             this.customSearchTextBox.Size = new System.Drawing.Size(851, 20);
             this.customSearchTextBox.TabIndex = 2;
+            this.customSearchTextBox.Click += new System.EventHandler(this.customSearchTextBox_Click);
+            this.customSearchTextBox.TextChanged += new System.EventHandler(this.customSearchTextBox_TextChanged);
             this.customSearchTextBox.Enter += new System.EventHandler(this.customSearchTextBox_Enter);
+            this.customSearchTextBox.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.customSearchTextBox_KeyPress);
+            this.customSearchTextBox.Leave += new System.EventHandler(this.customSearchTextBox_Leave);
             // 
             // resultsCheckedListBox
             // 

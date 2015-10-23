@@ -7,7 +7,7 @@ using System.Runtime.InteropServices;
 // l'ensemble d'attributs suivant. Changez les valeurs de ces attributs pour modifier les informations
 // associées à un assembly.
 [assembly: AssemblyTitle("Start Menu Cleaner")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyDescription("Remove those annoying Uninstall.lnk, you can filter with custom words too.")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("SjServ")]
 [assembly: AssemblyProduct("Start Menu Cleaner")]
@@ -33,7 +33,7 @@ using System.Runtime.InteropServices;
 // Vous pouvez spécifier toutes les valeurs ou indiquer les numéros de build et de révision par défaut 
 // en utilisant '*', comme indiqué ci-dessous :
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("1.0.0.0")]
-[assembly: AssemblyFileVersion("1.0.0.0")]
+[assembly: AssemblyVersion("1.0.0.1")]
+[assembly: AssemblyFileVersion("1.0.0.1")]
 [assembly: NeutralResourcesLanguage("en-US")]
 
