@@ -34,6 +34,7 @@
             this.customSearchTextBox = new System.Windows.Forms.TextBox();
             this.resultsCheckedListBox = new System.Windows.Forms.CheckedListBox();
             this.removeButton = new System.Windows.Forms.Button();
+            this.selectCheckboxButton = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // scanButton
@@ -87,11 +88,22 @@
             this.removeButton.UseVisualStyleBackColor = true;
             this.removeButton.Click += new System.EventHandler(this.removeButton_Click);
             // 
+            // selectCheckboxButton
+            // 
+            this.selectCheckboxButton.Location = new System.Drawing.Point(13, 469);
+            this.selectCheckboxButton.Name = "selectCheckboxButton";
+            this.selectCheckboxButton.Size = new System.Drawing.Size(105, 23);
+            this.selectCheckboxButton.TabIndex = 5;
+            this.selectCheckboxButton.Text = "Select All/None";
+            this.selectCheckboxButton.UseVisualStyleBackColor = true;
+            this.selectCheckboxButton.Click += new System.EventHandler(this.selectCheckboxButton_Click);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1069, 504);
+            this.Controls.Add(this.selectCheckboxButton);
             this.Controls.Add(this.removeButton);
             this.Controls.Add(this.resultsCheckedListBox);
             this.Controls.Add(this.customSearchTextBox);
@@ -112,6 +124,7 @@
         private System.Windows.Forms.TextBox customSearchTextBox;
         private System.Windows.Forms.CheckedListBox resultsCheckedListBox;
         private System.Windows.Forms.Button removeButton;
+        private System.Windows.Forms.Button selectCheckboxButton;
     }
 }
 

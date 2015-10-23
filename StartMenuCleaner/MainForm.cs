@@ -33,9 +33,14 @@ namespace StartMenuCleaner
         private string customSearchTextBoxDefaultText = "Enter a custom pattern, e.g : remove;uninstall;something";
 
         /// <summary>
-        /// 
+        /// Boolean to check if customSearchTextBox has been typedInto or not.
         /// </summary>
         private bool _TypedInto = false;
+
+        /// <summary>
+        /// Boolean to check if the previous state was checked or not
+        /// </summary>
+        private bool _stateChecked = true;
 
         /// <summary>
         /// Form and fixed dictionnary init
@@ -245,6 +250,21 @@ namespace StartMenuCleaner
         }
 
         /// <summary>
+        /// Function called when "Select All/None" button is hit, will select/deselect all checkboxes.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void selectCheckboxButton_Click(object sender, EventArgs e)
+        {
+            for (int i = 0; i < resultsCheckedListBox.Items.Count; i++)
+                resultsCheckedListBox.SetItemCheckState(i, (_stateChecked ? CheckState.Checked : CheckState.Unchecked));
+            if (_stateChecked == true)
+                _stateChecked = false;
+            else if (_stateChecked == false)
+                _stateChecked = true;
+        }
+
+        /// <summary>
         /// Set focus on "Scan Custom" Button when clicking the TextBox.
         /// </summary>
         /// <param name="sender"></param>
@@ -297,6 +317,7 @@ namespace StartMenuCleaner
                 customSearchTextBox.Text = customSearchTextBoxDefaultText;
             }
         }
+
 
     }
 }
