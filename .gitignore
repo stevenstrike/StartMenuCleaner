@@ -1,0 +1,8 @@
+﻿################################################################################
+# Ce fichier .gitignore a été automatiquement créé par Microsoft(R) Visual Studio.
+################################################################################
+
+/.vs/StartMenuCleaner/v15
+/StartMenuCleaner/bin/Debug
+/StartMenuCleaner/obj/Debug
+/StartMenuCleaner/StartMenuCleaner.csproj.user

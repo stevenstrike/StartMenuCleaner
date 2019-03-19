@@ -1,11 +1,9 @@
-﻿using System;
+﻿using StartMenuCleaner.Classes.FormTools;
+using StartMenuCleaner.Classes.Tools;
+using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Windows.Forms;
 
 namespace StartMenuCleaner
@@ -13,24 +11,14 @@ namespace StartMenuCleaner
     public partial class MainForm : Form
     {
         /// <summary>
-        /// List that contains several words to search for. (Fixed Dictionnary)
-        /// </summary>
-        private List<string> dictionnary = new List<string>();
-
-        /// <summary>
         /// List that contains the search result, and then the scan result.
         /// </summary>
-        private List<string> Result = new List<string>();
-
-        /// <summary>
-        /// String that contains the windows-start-menu path
-        /// </summary>
-        private string startMenuPath = "C:\\ProgramData\\Microsoft\\Windows\\Start Menu\\Programs\\";
+        private List<string> SearchResult = new List<string>();
 
         /// <summary>
         /// 
         /// </summary>
-        private string customSearchTextBoxDefaultText = "Enter a custom pattern, e.g : remove;uninstall;something";
+        private const string CustomSearchTextBoxDefaultText = "Enter a custom pattern, e.g : remove;uninstall;something";
 
         /// <summary>
         /// Boolean to check if customSearchTextBox has been typedInto or not.
@@ -40,7 +28,12 @@ namespace StartMenuCleaner
         /// <summary>
         /// Boolean to check if the previous state was checked or not
         /// </summary>
-        private bool _stateChecked = true;
+        private bool _StateChecked = true;
+
+        /// <summary>
+        /// The list box log
+        /// </summary>
+        private static ListBoxLog MyListBoxLog;
 
         /// <summary>
         /// Form and fixed dictionnary init
@@ -48,11 +41,39 @@ namespace StartMenuCleaner
         public MainForm()
         {
             InitializeComponent();
-            //Default Scan words
-            dictionnary.Add("Uninstall");
-            dictionnary.Add("Delete");
-            dictionnary.Add("Remove");
+
+            MyListBoxLog = new ListBoxLog(logLB);
         }
+
+        /// <summary>
+        /// Populate the CheckedListBox with the filtered files list.
+        /// </summary>
+        /// <param name="list">List of the filtered files list.</param>
+        private void AddResultToCheckedListBox(List<string> list)
+        {
+            try
+            {
+                if (resultsCheckedListBox != null && resultsCheckedListBox.Items != null)
+                {
+                    resultsCheckedListBox.Items.Clear();
+                }
+
+                if(list != null && list.Any())
+                {
+                    list.ForEach(delegate (string file)
+                    {
+                        resultsCheckedListBox.Items.Add(file);
+                    });
+                }
+            }
+            catch (System.Exception excpt)
+            {
+                Console.WriteLine(excpt.Message);
+                MyListBoxLog.Log(Enums.LogLevel.Error, excpt.Message);
+            }
+        }
+
+        #region Form Events
 
         /// <summary>
         /// MainForm load event (clean the checkedListBox)
@@ -63,117 +84,17 @@ namespace StartMenuCleaner
         {
             try
             {
-                resultsCheckedListBox.Items.Clear();
-                customSearchTextBox.Text = customSearchTextBoxDefaultText;
-            }
-            catch (System.Exception excpt)
-            {
-                Console.WriteLine(excpt.Message);
-            }
-        }
-
-        /// <summary>
-        /// Search through a given path for files recursively, 
-        /// return a list of string with the path of every files.
-        /// </summary>
-        /// <param name="sDir">Fixed Dictionnary</param>
-        /// <returns>sReturnList</returns>
-        private List<string> dirSearch(string sDir)
-        {
-            List<string> sReturnList = new List<string>();
-            try
-            {
-                foreach (string file in Directory.EnumerateFiles(sDir, "*.*", SearchOption.AllDirectories))
+                if (resultsCheckedListBox != null && resultsCheckedListBox.Items != null)
                 {
-                    sReturnList.Add(file);
+                    resultsCheckedListBox.Items.Clear();
                 }
-                return sReturnList;
-            }
-            catch (System.Exception excpt)
-            {
-                Console.WriteLine(excpt.Message);
-                return null;
-            }
-        }
 
-        /// <summary>
-        /// Get the list of every file found in the start menu path and apply a filter.
-        /// e.g check for file name "Uninstall".       
-        /// </summary>
-        /// <param name="list">List of every file found in the start menu path.</param>
-        /// <returns>returnResults</returns>
-        private List<string> normalScanCleanResults(List<string> list)
-        {
-            List<string> returnResults = new List<string>();
-            try {
-                foreach (string dicword in dictionnary)
-                {
-                    list.ForEach(delegate(string word)
-                    {
-                        if ((word.IndexOf(dicword, StringComparison.OrdinalIgnoreCase) >= 0))
-                        {
-                            returnResults.Add(word);
-                        }
-                    });                    
-                }
-                return returnResults;
+                customSearchTextBox.Text = CustomSearchTextBoxDefaultText;
             }
             catch (System.Exception excpt)
             {
                 Console.WriteLine(excpt.Message);
-                return null;
-            }
-        }
-
-        /// <summary>
-        /// Get the list of every file found in the start menu path and apply a user custom made filter
-        /// via the customSearchTextBox.
-        /// </summary>
-        /// <param name="list">List of every file found in the start menu path.</param>
-        /// <returns></returns>
-        private List<string> customScanCleanResults(List<string> list)
-        {
-            List<string> returnResults = new List<string>();
-            List<string> customDictionnary = new List<string>();
-            try {
-                string customSearchEntry = customSearchTextBox.Text;
-                customDictionnary = customSearchEntry.Split(';').ToList();
-                foreach (string dicword in customDictionnary)
-                {
-                    list.ForEach(delegate (string word)
-                    {
-                        if ((word.IndexOf(dicword, StringComparison.OrdinalIgnoreCase) >= 0))
-                        {
-                            returnResults.Add(word);
-                        }
-                    });
-                }
-                return returnResults;
-            }
-            catch (System.Exception excpt)
-            {
-                Console.WriteLine(excpt.Message);
-                return list;
-            }
-        }
-
-        /// <summary>
-        /// Populate the CheckedListBox with the filtered files list.
-        /// </summary>
-        /// <param name="list">List of the filtered files list.</param>
-        private void addResultToCheckedListBox(List<string> list)
-        {
-            try
-            {
-                resultsCheckedListBox.Items.Clear();
-                list.ForEach(delegate (string file)
-                {
-                    resultsCheckedListBox.Items.Add(file);
-                });
-            }
-            catch (System.Exception excpt)
-            {
-                Console.WriteLine(excpt.Message);
+                MyListBoxLog.Log(Enums.LogLevel.Error, excpt.Message);
             }
         }
 
@@ -185,44 +106,23 @@ namespace StartMenuCleaner
         /// <param name="e"></param>
         private void scanButton_Click(object sender, EventArgs e)
         {
-            resultsCheckedListBox.Items.Clear(); //CheckedListbox Init
-            Result = dirSearch(startMenuPath);
-            Result = normalScanCleanResults(Result);
-            addResultToCheckedListBox(Result);
-        }
-
-        /// <summary>
-        /// Function called when "Remove" button is hit, will remove each checked files from the resultsCheckedListBox.
-        /// Print a dialog form before erasing, asking the user to confirm the operation.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void removeButton_Click(object sender, EventArgs e)
-        {
-            try {
-                if(resultsCheckedListBox.CheckedItems.Count != 0)
-                { 
-                    var confirmResult = MessageBox.Show("Are you sure you want to completly delete this item ?",
-                                             "Confirm Delete",
-                                             MessageBoxButtons.YesNo);
-                    if (confirmResult == DialogResult.Yes)
-                    {
-                        foreach (var item in resultsCheckedListBox.CheckedItems.OfType<string>().ToList())
-                            try
-                            {
-                                File.Delete(item.ToString());
-                                resultsCheckedListBox.Items.Remove(item);
-                            }
-                            catch (System.Exception excpt)
-                            {
-                                Console.WriteLine(excpt.Message);
-                            }
-                    }
-                }
-            }
-            catch (System.Exception excpt)
+            try
             {
-                Console.WriteLine(excpt.Message);
+                if (resultsCheckedListBox != null && resultsCheckedListBox.Items != null)
+                {
+                    resultsCheckedListBox.Items.Clear();
+                }
+
+                var fileInfos = SMCleaner.EnumerateAllLnkFiles();
+                this.SearchResult = SMCleaner.NormalScanFilter(fileInfos);
+                AddResultToCheckedListBox(this.SearchResult);
+
+                MyListBoxLog.Log(Enums.LogLevel.Info, String.Format("Regular Scan: Found {0} items.", this.SearchResult.Count()));
+            }
+            catch(Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                MyListBoxLog.Log(Enums.LogLevel.Error, ex.Message);
             }
         }
 
@@ -234,18 +134,73 @@ namespace StartMenuCleaner
         /// <param name="e"></param>
         private void scanCustomButton_Click(object sender, EventArgs e)
         {
-            try { 
-                if(customSearchTextBox.Text == customSearchTextBoxDefaultText) { }
-                else {
-                    resultsCheckedListBox.Items.Clear();
-                    Result = dirSearch(startMenuPath);
-                    Result = customScanCleanResults(Result);
-                    addResultToCheckedListBox(Result);
+            try
+            {
+                if (customSearchTextBox.Text == CustomSearchTextBoxDefaultText) { }
+                else
+                {
+                    if (resultsCheckedListBox != null && resultsCheckedListBox.Items != null)
+                    {
+                        resultsCheckedListBox.Items.Clear();
+                    }
+
+                    var fileInfos = SMCleaner.EnumerateAllLnkFiles();
+                    this.SearchResult = SMCleaner.CustomScanFilter(fileInfos, customSearchTextBox.Text);
+                    AddResultToCheckedListBox(this.SearchResult);
+
+                    MyListBoxLog.Log(Enums.LogLevel.Info, String.Format("Custom Scan: Found {0} items.", this.SearchResult.Count()));
                 }
             }
             catch (System.Exception excpt)
             {
                 Console.WriteLine(excpt.Message);
+                MyListBoxLog.Log(Enums.LogLevel.Error, excpt.Message);
+            }
+        }
+
+        /// <summary>
+        /// Function called when "Remove" button is hit, will remove each checked files from the resultsCheckedListBox.
+        /// Print a dialog form before erasing, asking the user to confirm the operation.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void removeButton_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                if (resultsCheckedListBox.CheckedItems.Count > 0)
+                {
+                    var confirmResult = MessageBox.Show("Are you sure you want to completly delete this item ?",
+                                             "Confirm Delete",
+                                             MessageBoxButtons.YesNo);
+                    if (confirmResult == DialogResult.Yes)
+                    {
+                        foreach (var item in resultsCheckedListBox.CheckedItems.OfType<string>().ToList())
+                        {
+                            try
+                            {
+                                File.Delete(item.ToString());
+                                resultsCheckedListBox.Items.Remove(item);
+
+                                MyListBoxLog.Log(Enums.LogLevel.Info, String.Format("Item {0} deleted.", item.ToString()));
+                            }
+                            catch (System.Exception ex)
+                            {
+                                Console.WriteLine(ex.Message);
+                                MyListBoxLog.Log(Enums.LogLevel.Error, ex.Message);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        MyListBoxLog.Log(Enums.LogLevel.Info, "User cancelled the operation.");
+                    }
+                }
+            }
+            catch (System.Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                MyListBoxLog.Log(Enums.LogLevel.Error, ex.Message);
             }
         }
 
@@ -257,11 +212,11 @@ namespace StartMenuCleaner
         private void selectCheckboxButton_Click(object sender, EventArgs e)
         {
             for (int i = 0; i < resultsCheckedListBox.Items.Count; i++)
-                resultsCheckedListBox.SetItemCheckState(i, (_stateChecked ? CheckState.Checked : CheckState.Unchecked));
-            if (_stateChecked == true)
-                _stateChecked = false;
-            else if (_stateChecked == false)
-                _stateChecked = true;
+                resultsCheckedListBox.SetItemCheckState(i, (_StateChecked ? CheckState.Checked : CheckState.Unchecked));
+            if (_StateChecked == true)
+                _StateChecked = false;
+            else if (_StateChecked == false)
+                _StateChecked = true;
         }
 
         /// <summary>
@@ -301,8 +256,8 @@ namespace StartMenuCleaner
         /// <param name="e"></param>
         private void customSearchTextBox_Click(object sender, EventArgs e)
         {
-            if (!_TypedInto) { customSearchTextBox.Text = ""; }
-            else if (customSearchTextBox.Text == customSearchTextBoxDefaultText) { customSearchTextBox.Text = ""; }
+            if (!_TypedInto) { customSearchTextBox.Text = String.Empty; }
+            else if (customSearchTextBox.Text == CustomSearchTextBoxDefaultText) { customSearchTextBox.Text = String.Empty; }
         }
 
         /// <summary>
@@ -314,10 +269,9 @@ namespace StartMenuCleaner
         {
             if (!_TypedInto)
             {
-                customSearchTextBox.Text = customSearchTextBoxDefaultText;
+                customSearchTextBox.Text = CustomSearchTextBoxDefaultText;
             }
-        }
-
-
+        } 
+        #endregion
     }
 }

@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Windows.Forms;
 
 namespace StartMenuCleaner
@@ -13,18 +11,17 @@ namespace StartMenuCleaner
         [STAThread]
         static void Main()
         {
-            //Get compiling date
-            DateTime compileDate = new DateTime();
-            compileDate = DateTime.Now;
-            string sDate = compileDate.ToShortDateString();
-            //Get App name + version (+fixed name and current date) from assembly
-            string[] applicationInfo = new string[4] { Application.ProductName, Application.ProductVersion, "Steven Jalabert", sDate  };
+            //Get App name + version (+fixed name and current build date) from assembly
+            string[] applicationInfo = new string[4] { Application.ProductName, Application.ProductVersion, "StevenStrike", Properties.Resources.BuildDate };
 
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
+
             //Overload the Main Form to change its text dynamically (version, date..)
-            MainForm mf1 = new MainForm();
-            mf1.Text = applicationInfo[0] + " " + applicationInfo[1] + " - " + applicationInfo[2] + " - " + applicationInfo[3];
+            MainForm mf1 = new MainForm
+            {
+                Text = String.Format("{0} {1} {2} {3}", applicationInfo[0], applicationInfo[1], applicationInfo[2], applicationInfo[3])
+            };
             mf1.ShowDialog();
         }
     }
