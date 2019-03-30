@@ -8,7 +8,7 @@ namespace StartMenuCleaner
     /// <summary>
     /// Start Menu Cleaner Class.
     /// </summary>
-    class SMCleaner
+    public class SMCleaner
     {
         #region Private Attributes
         /// <summary>
@@ -35,6 +35,7 @@ namespace StartMenuCleaner
         public static List<FileInfo> EnumerateAllLnkFiles()
         {
             List<FileInfo> fileInfos = new List<FileInfo>();
+
             try
             {
                 foreach (FileInfo fi in StartMenuPath.SelectMany(x => new DirectoryInfo(x).EnumerateFiles("*.lnk", SearchOption.AllDirectories)))
@@ -43,9 +44,8 @@ namespace StartMenuCleaner
                 }
                 return fileInfos;
             }
-            catch (System.Exception ex)
+            catch (Exception)
             {
-                Console.WriteLine(ex.Message);
                 throw;
             }
         }
@@ -59,6 +59,7 @@ namespace StartMenuCleaner
         public static List<string> NormalScanFilter(List<FileInfo> searchResult)
         {
             List<string> returnResults = new List<string>();
+
             try
             {
                 foreach (string wordToRemove in DefaultWordsToRemove)
@@ -73,9 +74,8 @@ namespace StartMenuCleaner
                 }
                 return returnResults;
             }
-            catch (System.Exception excpt)
+            catch (Exception)
             {
-                Console.WriteLine(excpt.Message);
                 throw;
             }
         }
@@ -91,6 +91,7 @@ namespace StartMenuCleaner
         {
             List<string> returnResults = new List<string>();
             List<string> customDictionnary = new List<string>();
+
             try
             {
                 customDictionnary = customSearchEntry.Split(';').ToList();
@@ -106,9 +107,25 @@ namespace StartMenuCleaner
                 }
                 return returnResults;
             }
-            catch (System.Exception excpt)
+            catch (Exception)
             {
-                Console.WriteLine(excpt.Message);
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Removes the shortcut file.
+        /// </summary>
+        /// <param name="filePath">The file path.</param>
+        public static bool RemoveShortcutFile(string filePath)
+        {
+            try
+            {
+                File.Delete(filePath);
+                return true;
+            }
+            catch(Exception)
+            {
                 throw;
             }
         }

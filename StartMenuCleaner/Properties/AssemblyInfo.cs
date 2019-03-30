@@ -36,4 +36,4 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyVersion("1.0.0.3")]
 [assembly: AssemblyFileVersion("1.0.0.3")]
 [assembly: NeutralResourcesLanguage("en-US")]
-
+[assembly: InternalsVisibleTo("StartMenuCleaner_UnitTestProject")]

@@ -66,10 +66,34 @@ namespace StartMenuCleaner
                     });
                 }
             }
-            catch (System.Exception excpt)
+            catch (Exception ex)
             {
-                Console.WriteLine(excpt.Message);
-                MyListBoxLog.Log(Enums.LogLevel.Error, excpt.Message);
+                Console.WriteLine(ex.Message);
+                MyListBoxLog.Log(Enums.LogLevel.Error, ex.Message);
+            }
+        }
+
+        /// <summary>
+        /// Removes the start menu entries.
+        /// </summary>
+        private void RemoveStartMenuShortcutEntry()
+        {
+            foreach (var item in resultsCheckedListBox.CheckedItems.OfType<string>().ToList())
+            {
+                try
+                {
+                    //Remove file.
+                    SMCleaner.RemoveShortcutFile(item.ToString());
+                    //Remove item from listbox.
+                    resultsCheckedListBox.Items.Remove(item);
+                    
+                    MyListBoxLog.Log(Enums.LogLevel.Info, String.Format("Item {0} deleted.", item.ToString()));
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                    MyListBoxLog.Log(Enums.LogLevel.Error, ex.Message);
+                }
             }
         }
 
@@ -91,10 +115,10 @@ namespace StartMenuCleaner
 
                 customSearchTextBox.Text = CustomSearchTextBoxDefaultText;
             }
-            catch (System.Exception excpt)
+            catch (Exception ex)
             {
-                Console.WriteLine(excpt.Message);
-                MyListBoxLog.Log(Enums.LogLevel.Error, excpt.Message);
+                Console.WriteLine(ex.Message);
+                MyListBoxLog.Log(Enums.LogLevel.Error, ex.Message);
             }
         }
 
@@ -114,10 +138,10 @@ namespace StartMenuCleaner
                 }
 
                 var fileInfos = SMCleaner.EnumerateAllLnkFiles();
-                this.SearchResult = SMCleaner.NormalScanFilter(fileInfos);
-                AddResultToCheckedListBox(this.SearchResult);
+                SearchResult = SMCleaner.NormalScanFilter(fileInfos);
+                AddResultToCheckedListBox(SearchResult);
 
-                MyListBoxLog.Log(Enums.LogLevel.Info, String.Format("Regular Scan: Found {0} items.", this.SearchResult.Count()));
+                MyListBoxLog.Log(Enums.LogLevel.Info, String.Format("Regular Scan: Found {0} items.", SearchResult.Count()));
             }
             catch(Exception ex)
             {
@@ -145,16 +169,16 @@ namespace StartMenuCleaner
                     }
 
                     var fileInfos = SMCleaner.EnumerateAllLnkFiles();
-                    this.SearchResult = SMCleaner.CustomScanFilter(fileInfos, customSearchTextBox.Text);
-                    AddResultToCheckedListBox(this.SearchResult);
+                    SearchResult = SMCleaner.CustomScanFilter(fileInfos, customSearchTextBox.Text);
+                    AddResultToCheckedListBox(SearchResult);
 
-                    MyListBoxLog.Log(Enums.LogLevel.Info, String.Format("Custom Scan: Found {0} items.", this.SearchResult.Count()));
+                    MyListBoxLog.Log(Enums.LogLevel.Info, String.Format("Custom Scan: Found {0} items.", SearchResult.Count()));
                 }
             }
-            catch (System.Exception excpt)
+            catch (Exception ex)
             {
-                Console.WriteLine(excpt.Message);
-                MyListBoxLog.Log(Enums.LogLevel.Error, excpt.Message);
+                Console.WriteLine(ex.Message);
+                MyListBoxLog.Log(Enums.LogLevel.Error, ex.Message);
             }
         }
 
@@ -175,21 +199,7 @@ namespace StartMenuCleaner
                                              MessageBoxButtons.YesNo);
                     if (confirmResult == DialogResult.Yes)
                     {
-                        foreach (var item in resultsCheckedListBox.CheckedItems.OfType<string>().ToList())
-                        {
-                            try
-                            {
-                                File.Delete(item.ToString());
-                                resultsCheckedListBox.Items.Remove(item);
-
-                                MyListBoxLog.Log(Enums.LogLevel.Info, String.Format("Item {0} deleted.", item.ToString()));
-                            }
-                            catch (System.Exception ex)
-                            {
-                                Console.WriteLine(ex.Message);
-                                MyListBoxLog.Log(Enums.LogLevel.Error, ex.Message);
-                            }
-                        }
+                        RemoveStartMenuShortcutEntry();
                     }
                     else
                     {
@@ -197,7 +207,7 @@ namespace StartMenuCleaner
                     }
                 }
             }
-            catch (System.Exception ex)
+            catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
                 MyListBoxLog.Log(Enums.LogLevel.Error, ex.Message);
@@ -271,7 +281,25 @@ namespace StartMenuCleaner
             {
                 customSearchTextBox.Text = CustomSearchTextBoxDefaultText;
             }
-        } 
+        }
+
+        /// <summary>
+        /// Handles the SelectedIndexChanged event of the resultsCheckedListBox control.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
+        private void resultsCheckedListBox_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            // Enable the remove button when at least one item is selected.
+            if (resultsCheckedListBox.CheckedItems.Count > 0)
+            {
+                removeButton.Enabled = true;
+            }
+            else
+            {
+                removeButton.Enabled = false;
+            }
+        }
         #endregion
     }
 }

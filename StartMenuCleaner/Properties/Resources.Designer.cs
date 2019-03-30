@@ -61,7 +61,8 @@ namespace StartMenuCleaner.Properties {
         }
         
         /// <summary>
-        ///   Recherche une chaîne localisée semblable à .
+        ///   Recherche une chaîne localisée semblable à 30/03/2019 
+        ///.
         /// </summary>
         internal static string BuildDate {
             get {

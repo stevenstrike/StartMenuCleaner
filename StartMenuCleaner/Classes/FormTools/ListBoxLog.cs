@@ -13,10 +13,9 @@ namespace StartMenuCleaner.Classes.FormTools
 
         private bool _disposed;
         private ListBox _listBox;
-        private string _messageFormat;
-        private int _maxEntriesInListBox;
+        private readonly string _messageFormat;
+        private readonly int _maxEntriesInListBox;
         private bool _canAdd;
-        private bool _paused;
 
         private void OnHandleCreated(object sender, EventArgs e)
         {
@@ -33,10 +32,8 @@ namespace StartMenuCleaner.Classes.FormTools
                 e.DrawBackground();
                 e.DrawFocusRectangle();
 
-                LogEvent logEvent = ((ListBox)sender).Items[e.Index] as LogEvent;
-
                 // SafeGuard against wrong configuration of list box
-                if (logEvent == null)
+                if (!(((ListBox)sender).Items[e.Index] is LogEvent logEvent))
                 {
                     logEvent = new LogEvent(Enums.LogLevel.Critical, ((ListBox)sender).Items[e.Index].ToString());
                 }
@@ -84,8 +81,7 @@ namespace StartMenuCleaner.Classes.FormTools
         }
         private void CopyMenuPopupHandler(object sender, EventArgs e)
         {
-            ContextMenu menu = sender as ContextMenu;
-            if (menu != null)
+            if (sender is ContextMenu menu)
             {
                 menu.MenuItems[0].Enabled = (_listBox.SelectedItems.Count > 0);
             }
@@ -101,10 +97,10 @@ namespace StartMenuCleaner.Classes.FormTools
             }
 
             public readonly DateTime EventTime;
-
             public readonly Enums.LogLevel Level;
             public readonly string Message;
         }
+
         private void WriteEvent(LogEvent logEvent)
         {
             if ((logEvent != null) && (_canAdd))
@@ -122,7 +118,7 @@ namespace StartMenuCleaner.Classes.FormTools
                 _listBox.Items.RemoveAt(0);
             }
 
-            if (!_paused) _listBox.TopIndex = _listBox.Items.Count - 1;
+            if (!Paused) _listBox.TopIndex = _listBox.Items.Count - 1;
         }
         private string LevelName(Enums.LogLevel level)
         {
@@ -171,7 +167,6 @@ namespace StartMenuCleaner.Classes.FormTools
                 System.Diagnostics.Debug.WriteLine(selectedItemsAsRTFText.ToString());
                 Clipboard.SetData(DataFormats.Rtf, selectedItemsAsRTFText.ToString());
             }
-
         }
 
         public ListBoxLog(ListBox listBox) : this(listBox, DEFAULT_MESSAGE_FORMAT, DEFAULT_MAX_LINES_IN_LISTBOX) { }
@@ -184,7 +179,7 @@ namespace StartMenuCleaner.Classes.FormTools
             _messageFormat = messageFormat;
             _maxEntriesInListBox = maxLinesInListbox;
 
-            _paused = false;
+            Paused = false;
 
             _canAdd = listBox.IsHandleCreated;
 
@@ -210,11 +205,7 @@ namespace StartMenuCleaner.Classes.FormTools
             WriteEvent(new LogEvent(level, message));
         }
 
-        public bool Paused
-        {
-            get { return _paused; }
-            set { _paused = value; }
-        }
+        public bool Paused { get; set; }
 
         ~ListBoxLog()
         {

@@ -82,6 +82,7 @@
             // removeButton
             // 
             this.removeButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.removeButton.Enabled = false;
             this.removeButton.Location = new System.Drawing.Point(1269, 577);
             this.removeButton.Margin = new System.Windows.Forms.Padding(4);
             this.removeButton.Name = "removeButton";
@@ -133,6 +134,7 @@
             this.resultsCheckedListBox.Name = "resultsCheckedListBox";
             this.resultsCheckedListBox.Size = new System.Drawing.Size(1391, 395);
             this.resultsCheckedListBox.TabIndex = 4;
+            this.resultsCheckedListBox.SelectedIndexChanged += new System.EventHandler(this.resultsCheckedListBox_SelectedIndexChanged);
             // 
             // logLB
             // 

@@ -3,6 +3,9 @@
 ################################################################################
 
 /.vs/StartMenuCleaner/v15
-/StartMenuCleaner/bin/Debug
-/StartMenuCleaner/obj/Debug
+/StartMenuCleaner/bin
+/StartMenuCleaner/obj
 /StartMenuCleaner/StartMenuCleaner.csproj.user
+/StartMenuCleaner_UnitTestProject/obj
+/StartMenuCleaner_UnitTestProject/bin
+/packages
