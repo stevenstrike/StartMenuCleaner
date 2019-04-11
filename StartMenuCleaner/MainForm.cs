@@ -97,6 +97,25 @@ namespace StartMenuCleaner
             }
         }
 
+        /// <summary>
+        /// Sets the state of the results checked ListBox enabled.
+        /// </summary>
+        private void SetResultsCheckedListBoxEnabledState()
+        {
+            if(resultsCheckedListBox != null && resultsCheckedListBox.CheckedItems != null)
+            {
+                // Enable the remove button when at least one item is selected.
+                if (resultsCheckedListBox.CheckedItems.Count > 0)
+                {
+                    removeButton.Enabled = true;
+                }
+                else
+                {
+                    removeButton.Enabled = false;
+                }
+            }
+        }
+
         #region Form Events
 
         /// <summary>
@@ -148,6 +167,10 @@ namespace StartMenuCleaner
                 Console.WriteLine(ex.Message);
                 MyListBoxLog.Log(Enums.LogLevel.Error, ex.Message);
             }
+            finally
+            {
+                SetResultsCheckedListBoxEnabledState();
+            }
         }
 
         /// <summary>
@@ -179,6 +202,10 @@ namespace StartMenuCleaner
             {
                 Console.WriteLine(ex.Message);
                 MyListBoxLog.Log(Enums.LogLevel.Error, ex.Message);
+            }
+            finally
+            {
+                SetResultsCheckedListBoxEnabledState();
             }
         }
 
@@ -227,6 +254,9 @@ namespace StartMenuCleaner
                 _StateChecked = false;
             else if (_StateChecked == false)
                 _StateChecked = true;
+
+            // Update ResultsCheckedListBox state.
+            SetResultsCheckedListBoxEnabledState();
         }
 
         /// <summary>
@@ -290,16 +320,9 @@ namespace StartMenuCleaner
         /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
         private void resultsCheckedListBox_SelectedIndexChanged(object sender, EventArgs e)
         {
-            // Enable the remove button when at least one item is selected.
-            if (resultsCheckedListBox.CheckedItems.Count > 0)
-            {
-                removeButton.Enabled = true;
-            }
-            else
-            {
-                removeButton.Enabled = false;
-            }
+            SetResultsCheckedListBoxEnabledState();
         }
+
         #endregion
     }
 }
