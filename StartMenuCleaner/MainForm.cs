@@ -95,12 +95,15 @@ namespace StartMenuCleaner
                     MyListBoxLog.Log(Enums.LogLevel.Error, ex.Message);
                 }
             }
+
+            resultsCheckedListBox.ClearSelected();
+            resetStateCheck();
         }
 
         /// <summary>
         /// Sets the state of the results checked ListBox enabled.
         /// </summary>
-        private void SetResultsCheckedListBoxEnabledState()
+        private void SetResultsCheckedListBoxEnabledState(bool setStateChecked = false)
         {
             if(resultsCheckedListBox != null && resultsCheckedListBox.CheckedItems != null)
             {
@@ -112,6 +115,11 @@ namespace StartMenuCleaner
                 else
                 {
                     removeButton.Enabled = false;
+                }
+
+                if(setStateChecked)
+                {
+                    resetStateCheck();
                 }
             }
         }
@@ -169,7 +177,10 @@ namespace StartMenuCleaner
             }
             finally
             {
-                SetResultsCheckedListBoxEnabledState();
+                if (_StateChecked)
+                    SetResultsCheckedListBoxEnabledState();
+                else
+                    SetResultsCheckedListBoxEnabledState(true);
             }
         }
 
@@ -205,7 +216,10 @@ namespace StartMenuCleaner
             }
             finally
             {
-                SetResultsCheckedListBoxEnabledState();
+                if(_StateChecked)
+                    SetResultsCheckedListBoxEnabledState();
+                else
+                    SetResultsCheckedListBoxEnabledState(true);
             }
         }
 
@@ -227,6 +241,8 @@ namespace StartMenuCleaner
                     if (confirmResult == DialogResult.Yes)
                     {
                         RemoveStartMenuShortcutEntry();
+                        removeButton.Enabled = false;
+                        _StateChecked = true;
                     }
                     else
                     {
@@ -320,7 +336,12 @@ namespace StartMenuCleaner
         /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
         private void resultsCheckedListBox_SelectedIndexChanged(object sender, EventArgs e)
         {
-            SetResultsCheckedListBoxEnabledState();
+            SetResultsCheckedListBoxEnabledState(setStateChecked: true);
+        }
+
+        private void resetStateCheck()
+        {
+            _StateChecked = !_StateChecked;
         }
 
         #endregion
