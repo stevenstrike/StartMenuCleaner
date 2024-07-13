@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.IO;
 using System.Linq;
 
@@ -8,21 +9,24 @@ namespace StartMenuCleaner
     /// <summary>
     /// Start Menu Cleaner Class.
     /// </summary>
-    public class SMCleaner
+    public static class SMCleaner
     {
         #region Private Attributes
+
+        private const string DefaultWordsListConfigKey = "DefaultWordsList";
+
         /// <summary>
         /// String that contains the windows-start-menu path
         /// </summary>
-        private static readonly List<string> StartMenuPath = new List<string>(){
-            String.Format(@"{0}\Microsoft\Windows\Start Menu\Programs\", Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData)),
-            String.Format(@"{0}\Microsoft\Windows\Start Menu\Programs\", Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData))
+        private static readonly List<string> StartMenuPath = new List<string>() {
+            string.Format(@"{0}\Microsoft\Windows\Start Menu\Programs\", Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData)),
+            string.Format(@"{0}\Microsoft\Windows\Start Menu\Programs\", Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData))
         };
 
         /// <summary>
         /// List that contains several words to search for. (Fixed Dictionnary)
         /// </summary>
-        private static readonly List<string> DefaultWordsToRemove = new List<string>() { "Uninstall", "Delete", "Remove" };
+        private static readonly List<string> DefaultWordsToRemove = ConfigurationManager.AppSettings[DefaultWordsListConfigKey].Split(',').Select(s => s.Trim()).ToList();
 
         #endregion
 
@@ -35,19 +39,11 @@ namespace StartMenuCleaner
         public static List<FileInfo> EnumerateAllLnkFiles()
         {
             List<FileInfo> fileInfos = new List<FileInfo>();
-
-            try
+            foreach (FileInfo fileInfo in StartMenuPath.SelectMany(x => new DirectoryInfo(x).EnumerateFiles("*.lnk", SearchOption.AllDirectories)))
             {
-                foreach (FileInfo fi in StartMenuPath.SelectMany(x => new DirectoryInfo(x).EnumerateFiles("*.lnk", SearchOption.AllDirectories)))
-                {
-                    fileInfos.Add(fi);
-                }
-                return fileInfos;
+                fileInfos.Add(fileInfo);
             }
-            catch (Exception)
-            {
-                throw;
-            }
+            return fileInfos;
         }
 
         /// <summary>
@@ -59,25 +55,17 @@ namespace StartMenuCleaner
         public static List<string> NormalScanFilter(List<FileInfo> searchResult)
         {
             List<string> returnResults = new List<string>();
-
-            try
+            foreach (string wordToRemove in DefaultWordsToRemove)
             {
-                foreach (string wordToRemove in DefaultWordsToRemove)
+                searchResult.ForEach(delegate (FileInfo result)
                 {
-                    searchResult.ForEach(delegate (FileInfo result)
+                    if (result.Name.IndexOf(wordToRemove, StringComparison.OrdinalIgnoreCase) >= 0)
                     {
-                        if ((result.Name.IndexOf(wordToRemove, StringComparison.OrdinalIgnoreCase) >= 0))
-                        {
-                            returnResults.Add(result.FullName);
-                        }
-                    });
-                }
-                return returnResults;
+                        returnResults.Add(result.FullName);
+                    }
+                });
             }
-            catch (Exception)
-            {
-                throw;
-            }
+            return returnResults;
         }
 
         /// <summary>
@@ -92,25 +80,18 @@ namespace StartMenuCleaner
             List<string> returnResults = new List<string>();
             List<string> customDictionnary = new List<string>();
 
-            try
+            customDictionnary = customSearchEntry.Split(';').ToList();
+            foreach (string dicWord in customDictionnary)
             {
-                customDictionnary = customSearchEntry.Split(';').ToList();
-                foreach (string dicWord in customDictionnary)
+                searchResult.ForEach(delegate (FileInfo result)
                 {
-                    searchResult.ForEach(delegate (FileInfo result)
+                    if (result.Name.IndexOf(dicWord, StringComparison.OrdinalIgnoreCase) >= 0)
                     {
-                        if ((result.Name.IndexOf(dicWord, StringComparison.OrdinalIgnoreCase) >= 0))
-                        {
-                            returnResults.Add(result.FullName);
-                        }
-                    });
-                }
-                return returnResults;
+                        returnResults.Add(result.FullName);
+                    }
+                });
             }
-            catch (Exception)
-            {
-                throw;
-            }
+            return returnResults;
         }
 
         /// <summary>
@@ -119,15 +100,8 @@ namespace StartMenuCleaner
         /// <param name="filePath">The file path.</param>
         public static bool RemoveShortcutFile(string filePath)
         {
-            try
-            {
-                File.Delete(filePath);
-                return true;
-            }
-            catch(Exception)
-            {
-                throw;
-            }
+            File.Delete(filePath);
+            return true;
         }
         #endregion
     }

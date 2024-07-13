@@ -10,7 +10,6 @@ namespace StartMenuCleaner.Classes.FormTools
     {
         private const string DEFAULT_MESSAGE_FORMAT = "{0} [{5}] : {8}";
         private const int DEFAULT_MAX_LINES_IN_LISTBOX = 2000;
-
         private bool _disposed;
         private ListBox _listBox;
         private readonly string _messageFormat;
@@ -83,7 +82,7 @@ namespace StartMenuCleaner.Classes.FormTools
         {
             if (sender is ContextMenu menu)
             {
-                menu.MenuItems[0].Enabled = (_listBox.SelectedItems.Count > 0);
+                menu.MenuItems[0].Enabled = _listBox.SelectedItems.Count > 0;
             }
         }
 
@@ -136,18 +135,16 @@ namespace StartMenuCleaner.Classes.FormTools
         private string FormatALogEventMessage(LogEvent logEvent, string messageFormat)
         {
             string message = logEvent.Message;
-            if (message == null) { message = "<NULL>"; }
+            if (string.IsNullOrWhiteSpace(message)) { message = "<NULL>"; }
             return string.Format(messageFormat,
                 /* {0} */ logEvent.EventTime.ToString("yyyy-MM-dd HH:mm:ss.fff"),
                 /* {1} */ logEvent.EventTime.ToString("yyyy-MM-dd HH:mm:ss"),
                 /* {2} */ logEvent.EventTime.ToString("yyyy-MM-dd"),
                 /* {3} */ logEvent.EventTime.ToString("HH:mm:ss.fff"),
                 /* {4} */ logEvent.EventTime.ToString("HH:mm:ss"),
-
                 /* {5} */ LevelName(logEvent.Level)[0],
                 /* {6} */ LevelName(logEvent.Level),
                 /* {7} */ (int)logEvent.Level,
-
                 /* {8} */ message);
         }
         private void CopyToClipboard()
