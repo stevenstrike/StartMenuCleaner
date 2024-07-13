@@ -2,7 +2,6 @@
 using StartMenuCleaner.Classes.Tools;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Windows.Forms;
 
@@ -18,7 +17,7 @@ namespace StartMenuCleaner
         /// <summary>
         /// 
         /// </summary>
-        private const string CustomSearchTextBoxDefaultText = "Enter a custom pattern, e.g : remove;uninstall;something";
+        private const string CustomSearchTextBoxDefaultText = "Enter a custom pattern, e.g: remove;uninstall;something";
 
         /// <summary>
         /// Boolean to check if customSearchTextBox has been typedInto or not.
@@ -51,25 +50,17 @@ namespace StartMenuCleaner
         /// <param name="list">List of the filtered files list.</param>
         private void AddResultToCheckedListBox(List<string> list)
         {
-            try
+            if (resultsCheckedListBox != null && resultsCheckedListBox.Items != null)
             {
-                if (resultsCheckedListBox != null && resultsCheckedListBox.Items != null)
-                {
-                    resultsCheckedListBox.Items.Clear();
-                }
-
-                if(list != null && list.Any())
-                {
-                    list.ForEach(delegate (string file)
-                    {
-                        resultsCheckedListBox.Items.Add(file);
-                    });
-                }
+                resultsCheckedListBox.Items.Clear();
             }
-            catch (Exception ex)
+
+            if(list != null && list.Any())
             {
-                Console.WriteLine(ex.Message);
-                MyListBoxLog.Log(Enums.LogLevel.Error, ex.Message);
+                list.ForEach(delegate (string file)
+                {
+                    resultsCheckedListBox.Items.Add(file);
+                });
             }
         }
 
@@ -82,12 +73,12 @@ namespace StartMenuCleaner
             {
                 try
                 {
-                    //Remove file.
+                    // Remove file.
                     SMCleaner.RemoveShortcutFile(item.ToString());
-                    //Remove item from listbox.
+                    // Remove item from listbox.
                     resultsCheckedListBox.Items.Remove(item);
                     
-                    MyListBoxLog.Log(Enums.LogLevel.Info, String.Format("Item {0} deleted.", item.ToString()));
+                    MyListBoxLog.Log(Enums.LogLevel.Info, string.Format("Item {0} deleted.", item.ToString()));
                 }
                 catch (Exception ex)
                 {
@@ -97,7 +88,7 @@ namespace StartMenuCleaner
             }
 
             resultsCheckedListBox.ClearSelected();
-            resetStateCheck();
+            ResetStateCheck();
         }
 
         /// <summary>
@@ -116,10 +107,9 @@ namespace StartMenuCleaner
                 {
                     removeButton.Enabled = false;
                 }
-
                 if(setStateChecked)
                 {
-                    resetStateCheck();
+                    ResetStateCheck();
                 }
             }
         }
@@ -133,20 +123,12 @@ namespace StartMenuCleaner
         /// <param name="e"></param>
         private void MainForm_Load(object sender, EventArgs e)
         {
-            try
+            if (resultsCheckedListBox != null && resultsCheckedListBox.Items != null)
             {
-                if (resultsCheckedListBox != null && resultsCheckedListBox.Items != null)
-                {
-                    resultsCheckedListBox.Items.Clear();
-                }
+                resultsCheckedListBox.Items.Clear();
+            }
 
-                customSearchTextBox.Text = CustomSearchTextBoxDefaultText;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-                MyListBoxLog.Log(Enums.LogLevel.Error, ex.Message);
-            }
+            customSearchTextBox.Text = CustomSearchTextBoxDefaultText;
         }
 
         /// <summary>
@@ -168,7 +150,7 @@ namespace StartMenuCleaner
                 SearchResult = SMCleaner.NormalScanFilter(fileInfos);
                 AddResultToCheckedListBox(SearchResult);
 
-                MyListBoxLog.Log(Enums.LogLevel.Info, String.Format("Regular Scan: Found {0} items.", SearchResult.Count()));
+                MyListBoxLog.Log(Enums.LogLevel.Info, string.Format("Regular Scan: Found {0} items.", SearchResult.Count()));
             }
             catch(Exception ex)
             {
@@ -178,9 +160,13 @@ namespace StartMenuCleaner
             finally
             {
                 if (_StateChecked)
-                    SetResultsCheckedListBoxEnabledState();
+                {
+                    SetResultsCheckedListBoxEnabledState(false);
+                }
                 else
+                {
                     SetResultsCheckedListBoxEnabledState(true);
+                }
             }
         }
 
@@ -194,8 +180,7 @@ namespace StartMenuCleaner
         {
             try
             {
-                if (customSearchTextBox.Text == CustomSearchTextBoxDefaultText) { }
-                else
+                if(customSearchTextBox.Text != CustomSearchTextBoxDefaultText)
                 {
                     if (resultsCheckedListBox != null && resultsCheckedListBox.Items != null)
                     {
@@ -206,7 +191,7 @@ namespace StartMenuCleaner
                     SearchResult = SMCleaner.CustomScanFilter(fileInfos, customSearchTextBox.Text);
                     AddResultToCheckedListBox(SearchResult);
 
-                    MyListBoxLog.Log(Enums.LogLevel.Info, String.Format("Custom Scan: Found {0} items.", SearchResult.Count()));
+                    MyListBoxLog.Log(Enums.LogLevel.Info, string.Format("Custom Scan: Found {0} items.", SearchResult.Count()));
                 }
             }
             catch (Exception ex)
@@ -216,10 +201,14 @@ namespace StartMenuCleaner
             }
             finally
             {
-                if(_StateChecked)
-                    SetResultsCheckedListBoxEnabledState();
+                if (_StateChecked)
+                {
+                    SetResultsCheckedListBoxEnabledState(false);
+                }
                 else
+                {
                     SetResultsCheckedListBoxEnabledState(true);
+                }
             }
         }
 
@@ -235,7 +224,7 @@ namespace StartMenuCleaner
             {
                 if (resultsCheckedListBox.CheckedItems.Count > 0)
                 {
-                    var confirmResult = MessageBox.Show("Are you sure you want to completly delete this item ?",
+                    DialogResult confirmResult = MessageBox.Show("Are you sure you want to completly delete this item ?",
                                              "Confirm Delete",
                                              MessageBoxButtons.YesNo);
                     if (confirmResult == DialogResult.Yes)
@@ -264,15 +253,29 @@ namespace StartMenuCleaner
         /// <param name="e"></param>
         private void selectCheckboxButton_Click(object sender, EventArgs e)
         {
-            for (int i = 0; i < resultsCheckedListBox.Items.Count; i++)
-                resultsCheckedListBox.SetItemCheckState(i, (_StateChecked ? CheckState.Checked : CheckState.Unchecked));
-            if (_StateChecked == true)
-                _StateChecked = false;
-            else if (_StateChecked == false)
-                _StateChecked = true;
+            try
+            {
+                for (int i = 0; i < resultsCheckedListBox.Items.Count; i++)
+                {
+                    resultsCheckedListBox.SetItemCheckState(i, _StateChecked ? CheckState.Checked : CheckState.Unchecked);
+                }
+                if (_StateChecked == true)
+                {
+                    _StateChecked = false;
+                }
+                else if (_StateChecked == false)
+                {
+                    _StateChecked = true;
+                }
 
-            // Update ResultsCheckedListBox state.
-            SetResultsCheckedListBoxEnabledState();
+                // Update ResultsCheckedListBox state.
+                SetResultsCheckedListBoxEnabledState();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                MyListBoxLog.Log(Enums.LogLevel.Error, ex.Message);
+            }
         }
 
         /// <summary>
@@ -292,7 +295,7 @@ namespace StartMenuCleaner
         /// <param name="e"></param>
         private void customSearchTextBox_TextChanged(object sender, EventArgs e)
         {
-            _TypedInto = !String.IsNullOrEmpty(customSearchTextBox.Text);
+            _TypedInto = !string.IsNullOrWhiteSpace(customSearchTextBox.Text);
         }
 
         /// <summary>
@@ -312,8 +315,14 @@ namespace StartMenuCleaner
         /// <param name="e"></param>
         private void customSearchTextBox_Click(object sender, EventArgs e)
         {
-            if (!_TypedInto) { customSearchTextBox.Text = String.Empty; }
-            else if (customSearchTextBox.Text == CustomSearchTextBoxDefaultText) { customSearchTextBox.Text = String.Empty; }
+            if (!_TypedInto) 
+            { 
+                customSearchTextBox.Text = string.Empty; 
+            }
+            else if (customSearchTextBox.Text == CustomSearchTextBoxDefaultText) 
+            { 
+                customSearchTextBox.Text = string.Empty; 
+            }
         }
 
         /// <summary>
@@ -339,11 +348,13 @@ namespace StartMenuCleaner
             SetResultsCheckedListBoxEnabledState(setStateChecked: true);
         }
 
-        private void resetStateCheck()
+        /// <summary>
+        /// Resets the state check.
+        /// </summary>
+        private void ResetStateCheck()
         {
             _StateChecked = !_StateChecked;
         }
-
         #endregion
     }
 }
